@@ -25,7 +25,21 @@ impl ULA {
         self.visor = "0".to_string();
     }
     pub fn invert(&mut self) {
-        println!("Não implementado");
+        if self.error {
+            self.error = false;
+        }
+        if self.visor == "0"{
+            return;
+        }
+        if self.visor.starts_with('-'){
+            self.visor.remove(0);
+        } else {
+            self.visor.insert(0, '-');
+        }
+        if self.erase{
+            self.cache = self.visor.clone();
+        }
+
     }
     pub fn erase_all(&mut self){
         self.erase_visor();
@@ -82,20 +96,6 @@ impl ULA {
             }
         }
         println!("{:?}", self);
-    }
-    fn check_sum(&mut self, sum: Option<i64>)->Result<(),()>{
-        match sum {
-            Some(sum) => {
-                self.cache = format!("{}", sum);
-                self.visor = format!("{}", sum);
-                self.erase = true;
-                self.queued_operation = None;
-                Ok(())
-            }
-            None => {
-                Err(())
-            }
-        }
     }
 
     fn format_sum(&mut self, sum: f64) -> String {
