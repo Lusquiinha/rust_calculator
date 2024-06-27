@@ -1,23 +1,18 @@
-use std::error::Error;
-use log::error;
-
 #[derive(Debug)]
 pub struct ULA{
     pub visor: String,
     cache: String,
-    queued_operation: Option<Operations>,
+    pub queued_operation: Option<Operations>,
     erase: bool,
     error: bool,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Operations {
-    Percentage,
     Multiplication,
     Division,
     Addition,
     Subtraction,
     Equals,
-    Point
 }
 
 impl ULA {
