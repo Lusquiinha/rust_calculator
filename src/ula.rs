@@ -24,7 +24,7 @@ impl ULA {
     pub fn erase_visor(&mut self) {
         self.visor = "0".to_string();
     }
-    pub fn percentage(&mut self) {
+    pub fn invert(&mut self) {
         println!("Não implementado");
     }
     pub fn erase_all(&mut self){
@@ -35,12 +35,22 @@ impl ULA {
         self.error = false;
     }
     pub fn point(&mut self){
-        println!("Não implementado");
+        if self.error {
+            self.error = false;
+        }
+        if self.erase{
+            self.erase_visor();
+            self.erase = false;
+        }
+        if !self.visor.contains('.') {
+            self.visor.push('.');
+        }
+
     }
-    fn do_operation(&mut self, operation: Operations){
+    fn do_operation(&mut self, operation: Option<Operations>){
         match self.do_queued_operation() {
             Ok(_) => {
-                self.queued_operation = Some(operation.clone());
+                self.queued_operation = operation.clone();
             }
             Err(_) => {
                 self.erase_all();
@@ -51,15 +61,14 @@ impl ULA {
         }
     }
     pub fn queue_operation(&mut self, operation: Operations){
-        println!("{:?}", self);
 
         if self.error{
             return;
         }
 
         if matches!(operation, Operations::Equals){
-            self.do_operation(operation);
-            return
+            self.do_operation(None);
+            return;
         }
 
         match &self.queued_operation {
@@ -69,9 +78,10 @@ impl ULA {
                 self.erase = true;
             },
             Some(_) => {
-                self.do_operation(operation);
+                self.do_operation(Some(operation.clone()));
             }
         }
+        println!("{:?}", self);
     }
     fn check_sum(&mut self, sum: Option<i64>)->Result<(),()>{
         match sum {
@@ -87,27 +97,54 @@ impl ULA {
             }
         }
     }
+
+    fn format_sum(&mut self, sum: f64) -> String {
+        let formatted_sum = format!("{:15}", sum).trim().to_string();
+
+        if formatted_sum.len() > 17 {
+            let formatted_sum = format!("{:.11e}", sum).trim().to_string();
+            formatted_sum
+        } else {
+            formatted_sum
+        }
+    }
+    fn check_sum_float(&mut self, sum: Option<f64>)->Result<(),()>{
+        match sum {
+            Some(sum) => {
+                let formatted_sum = self.format_sum(sum);
+                self.cache = formatted_sum.clone();
+                self.visor = formatted_sum;
+                self.erase = true;
+                self.queued_operation = None;
+                Ok(())
+            }
+            None => {
+                Err(())
+            }
+        }
+    }
     pub fn do_queued_operation(&mut self) -> Result<(),()>{
         match &self.queued_operation {
+
             Some(Operations::Addition) => {
-                let sum = self.cache.parse::<i64>().unwrap().checked_add(self.visor.parse::<i64>().unwrap());
-                self.check_sum(sum)
+                let sum = self.cache.parse::<f64>().unwrap() + self.visor.parse::<f64>().unwrap();
+                self.check_sum_float(Some(sum))
             }
             Some(Operations::Subtraction) => {
-                let sum= self.cache.parse::<i64>().unwrap().checked_sub(self.visor.parse::<i64>().unwrap());
-                self.check_sum(sum)
+                let sum= self.cache.parse::<f64>().unwrap() - self.visor.parse::<f64>().unwrap();
+                self.check_sum_float(Some(sum))
             }
             Some(Operations::Division) => {
-                let sum = self.cache.parse::<i64>().unwrap().checked_div(self.visor.parse::<i64>().unwrap());
-                self.check_sum(sum)
+                let sum = self.cache.parse::<f64>().unwrap() / self.visor.parse::<f64>().unwrap();
+                self.check_sum_float(Some(sum))
             }
             Some(Operations::Multiplication) => {
-                let sum = self.cache.parse::<i64>().unwrap().checked_mul(self.visor.parse::<i64>().unwrap());
-                self.check_sum(sum)
+                let sum = self.cache.parse::<f64>().unwrap() * self.visor.parse::<f64>().unwrap();
+                self.check_sum_float(Some(sum))
             }
 
             _ =>{
-                Err(())
+                Ok(())
             }
         }
 
@@ -129,7 +166,7 @@ impl ULA {
             self.erase_visor();
             self.erase = false;
         }
-        if self.visor.len() < 13{
+        if self.visor.len() < 17{
             if self.visor == "0" {
                 self.visor.pop();
             }

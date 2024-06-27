@@ -30,7 +30,7 @@ fn configure_text_styles(ctx: &egui::Context) {
 
     let mut style = (*ctx.style()).clone();
     style.text_styles = [
-        (TextStyle::Heading, FontId::new(48.0, Proportional)),
+        (TextStyle::Heading, FontId::new(42.0, Proportional)),
         (TextStyle::Body, FontId::new(32.0, Proportional)),
         (TextStyle::Monospace, FontId::new(28.0, Monospace)),
         (TextStyle::Button, FontId::new(28.0, Monospace)),

@@ -58,8 +58,8 @@ impl Keyboard {
 
         ui.horizontal(|ui|{
             self.button_style_dark(ui);
-            if ui.add_sized(vec2(100.0,100.0), egui::Button::new("%")).clicked(){
-                ula.percentage();
+            if ui.add_sized(vec2(100.0,100.0), egui::Button::new("+/-")).clicked(){
+                ula.invert();
             }
             if ui.add_sized(vec2(100.0,100.0), egui::Button::new("CE")).clicked(){
                 ula.erase_visor();
